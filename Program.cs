@@ -137,7 +137,7 @@ namespace PerfectGraves
             }
             if (useQ && Q.IsReady() && Q.GetPrediction(target).HitChance >= HitChance.High)
             {
-                Q.Cast(target);
+                Q.Cast(Q.GetPrediction(target).CastPosition);
             }
         }
         public static void Combo()
@@ -153,7 +153,7 @@ namespace PerfectGraves
             {
                 if (useQ && Q.IsReady() && Q.GetPrediction(target).HitChance >= HitChance.Medium)
                 {
-                    Q.Cast(target);
+                    Q.Cast(Q.GetPrediction(target).CastPosition);
                 }
                 if (useW && W.IsReady() && W.GetPrediction(target).HitChance >= HitChance.Medium && target.IsValidTarget(W.Range))
                 {
@@ -165,7 +165,7 @@ namespace PerfectGraves
                 }
                 if (useR && R.IsReady() && R.GetPrediction(target).HitChance >= HitChance.Medium && target.Health <= RDamage(target) && target.IsValidTarget(R.Range))
                 {
-                    R.Cast(target);
+                    R.Cast(R.GetPrediction(target).CastPosition);
                 }
                 if (UseItems)
                 {
