@@ -40,7 +40,7 @@ namespace PerfectGraves
             Q = new Spell.Skillshot(SpellSlot.Q, 950, SkillShotType.Linear, 250, 2000, 40);
             W = new Spell.Skillshot(SpellSlot.W, 850, SkillShotType.Circular, 250, 1650, 200);
             E = new Spell.Skillshot(SpellSlot.E, 425, SkillShotType.Circular);
-            R = new Spell.Skillshot(SpellSlot.R, 1000, SkillShotType.Linear, 250, 2100, 100);
+            R = new Spell.Skillshot(SpellSlot.R, 1300, SkillShotType.Linear, 250, 2100, 100);
 
             menu = MainMenu.AddMenu("Perfect Graves", "PerfectGraves");
 
@@ -149,7 +149,7 @@ namespace PerfectGraves
             var useR = ComboMenu["useRCombo"].Cast<CheckBox>().CurrentValue;
             
 
-            foreach (var target in HeroManager.Enemies.Where(o => o.IsValidTarget(1100) && !o.IsDead && !o.IsZombie))
+            foreach (var target in HeroManager.Enemies.Where(o => o.IsValidTarget(1300) && !o.IsDead && !o.IsZombie))
             {
                 if (useQ && Q.IsReady() && Q.GetPrediction(target).HitChance >= HitChance.Medium)
                 {
