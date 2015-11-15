@@ -110,6 +110,7 @@ namespace PerfectGraves
         }
         public static void KillSteal()
         {
+            if (Orbwalker.IsAutoAttacking) return;
             var useR = KSMenu["useRKS"].Cast<CheckBox>().CurrentValue;
             var useQ = KSMenu["useQKS"].Cast<CheckBox>().CurrentValue;
             var targetQ = TargetSelector.GetTarget(Q.Range, DamageType.Physical);
@@ -183,6 +184,7 @@ namespace PerfectGraves
         }
         public static void Harass()
         {
+            if (Orbwalker.IsAutoAttacking) return;
             var target = TargetSelector.GetTarget(Q.Range, DamageType.Physical);
             var UseItems = HarassMenu["useItems"].Cast<CheckBox>().CurrentValue;
             var useQ = HarassMenu["useQHarass"].Cast<CheckBox>().CurrentValue;
@@ -193,6 +195,7 @@ namespace PerfectGraves
         }
         public static void Combo()
         {
+            if (Orbwalker.IsAutoAttacking) return;
             var UseItems = ComboMenu["useItems"].Cast<CheckBox>().CurrentValue;
             var useQ = ComboMenu["useQCombo"].Cast<CheckBox>().CurrentValue;
             var useW = ComboMenu["useWCombo"].Cast<CheckBox>().CurrentValue;
@@ -243,6 +246,7 @@ namespace PerfectGraves
 
         private static void JungleClear()
         {
+            if (Orbwalker.IsAutoAttacking) return;
             var useQ = FarmMenu["Qjungle"].Cast<CheckBox>().CurrentValue;
             var useQMana = FarmMenu["QjungleMana"].Cast<Slider>().CurrentValue;
             var useE = FarmMenu["Ejungle"].Cast<CheckBox>().CurrentValue;
