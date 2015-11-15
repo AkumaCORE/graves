@@ -37,9 +37,9 @@ namespace PerfectGraves
         private static void Loading_OnLoadingComplete(EventArgs args)
         {
             Bootstrap.Init(null);
-            Q = new Spell.Skillshot(SpellSlot.Q, 950, SkillShotType.Linear, 250, 2000, 40);
+            Q = new Spell.Skillshot(SpellSlot.Q, 950, SkillShotType.Cone, 250, 2000, 40);
             W = new Spell.Skillshot(SpellSlot.W, 850, SkillShotType.Circular, 250, 1650, 200);
-            E = new Spell.Skillshot(SpellSlot.E, 425, SkillShotType.Circular);
+            E = new Spell.Skillshot(SpellSlot.E, 425, SkillShotType.Linear);
             R = new Spell.Skillshot(SpellSlot.R, 1300, SkillShotType.Linear, 250, 2100, 100);
 
             menu = MainMenu.AddMenu("Perfect Graves", "PerfectGraves");
@@ -58,8 +58,15 @@ namespace PerfectGraves
             HarassMenu.Add("useQHarass", new CheckBox("Use Q"));
             HarassMenu.Add("useItems", new CheckBox("Use Items"));
 
-            FarmMenu = menu.AddSubMenu("LaneClear Settings", "Farm");
+            FarmMenu = menu.AddSubMenu("Lane/Jungle Clear Settings", "Farm");
+            FarmMenu.AddLabel("Lane Clear");
             FarmMenu.Add("useQ", new CheckBox("Use Q"));
+
+            FarmMenu.AddLabel("Jungle Clear");
+            FarmMenu.Add("Qjungle", new CheckBox("Use Q"));
+            FarmMenu.Add("QjungleMana", new Slider("Mana < %", 45, 0, 100));
+            FarmMenu.Add("Ejungle", new CheckBox("Use E"));
+            FarmMenu.Add("EjungleMana", new Slider("Mana < %", 45, 0, 100));
 
             DrawingsMenu = menu.AddSubMenu("Draw Settings", "Drawings");
             DrawingsMenu.Add("DrawQ", new CheckBox("Draw Q"));
@@ -68,7 +75,8 @@ namespace PerfectGraves
             DrawingsMenu.Add("DrawR", new CheckBox("Draw R"));
 
             UpdateMenu = menu.AddSubMenu("Updates", "Update");
-            UpdateMenu.AddLabel("0.0.1 Shared");
+            UpdateMenu.AddLabel("0.0.2 Updated");
+            UpdateMenu.AddLabel("-Jungle Clear Added!");
 
 
 
@@ -81,12 +89,16 @@ namespace PerfectGraves
             Orbwalker.ForcedTarget = null;
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)) Combo();
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear)) LaneClear();
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear))
+            {
+                JungleClear();
+            }
         }
 
         public static float RDamage(Obj_AI_Base target)
         {
             return _Player.CalculateDamageOnUnit(target, DamageType.Physical,
-                (float)(new[] { 250, 400, 550 }[Program.R.Level] + 1.5 * _Player.FlatPhysicalDamageMod));
+                (float)(new[] { 250, 400, 550 }[Program.R.Level] + 1.4 * _Player.FlatPhysicalDamageMod));
         }
         internal static void HandleItems()
         {
@@ -135,7 +147,7 @@ namespace PerfectGraves
             {
                 HandleItems();
             }
-            if (useQ && Q.IsReady() && Q.GetPrediction(target).HitChance >= HitChance.High)
+            if (useQ && Q.IsReady() && Q.GetPrediction(target).HitChance >= HitChance.Medium)
             {
                 Q.Cast(Q.GetPrediction(target).CastPosition);
             }
@@ -180,6 +192,27 @@ namespace PerfectGraves
             if (useQ && Q.IsReady() && Q.IsInRange(minions.FirstOrDefault().Position) && Q.GetPrediction(minions.FirstOrDefault()).HitChance >= HitChance.High)
             {
                 Q.Cast(minions.First().Position);
+            }
+        }
+
+        private static void JungleClear()
+        {
+            var useQ = FarmMenu["Qjungle"].Cast<CheckBox>().CurrentValue;
+            var useQMana = FarmMenu["QjungleMana"].Cast<Slider>().CurrentValue;
+            var useE = FarmMenu["Ejungle"].Cast<CheckBox>().CurrentValue;
+            var useEMana = FarmMenu["EjungleMana"].Cast<Slider>().CurrentValue;
+            foreach (var monster in EntityManager.MinionsAndMonsters.Monsters)
+            {
+                if (useQ && Q.IsReady() && Player.Instance.ManaPercent > useQMana)
+                {
+                    Q.Cast(monster);
+                }
+                if (useE && E.IsReady() && Player.Instance.HealthPercent > useEMana)
+                {
+                    E.Cast(mousePos);
+                }
+
+                HandleItems();
             }
         }
 
