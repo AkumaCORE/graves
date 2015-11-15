@@ -26,21 +26,22 @@ namespace PerfectGraves
             get { return ObjectManager.Player; }
         }
 
-        public static Menu menu, ComboMenu, DrawingsMenu, FarmMenu, HarassMenu, UpdateMenu;
+        public static Menu menu, ComboMenu, DrawingsMenu, FarmMenu, HarassMenu, UpdateMenu, KSMenu;
         public static Spell.Skillshot Q;
         public static Spell.Skillshot W;
         public static Spell.Skillshot E;
         public static Spell.Skillshot R;
-        public static Spell.Chargeable Passive;
+        public static Spell.Skillshot R1;
         private static Vector3 mousePos { get { return Game.CursorPos; } }
 
         private static void Loading_OnLoadingComplete(EventArgs args)
         {
             Bootstrap.Init(null);
-            Q = new Spell.Skillshot(SpellSlot.Q, 950, SkillShotType.Cone, 250, 2000, 40);
-            W = new Spell.Skillshot(SpellSlot.W, 850, SkillShotType.Circular, 250, 1650, 200);
+            Q = new Spell.Skillshot(SpellSlot.Q, 950, SkillShotType.Linear, 250, 2000, 60);
+            W = new Spell.Skillshot(SpellSlot.W, 850, SkillShotType.Circular, 250, 1650, 150);
             E = new Spell.Skillshot(SpellSlot.E, 425, SkillShotType.Linear);
-            R = new Spell.Skillshot(SpellSlot.R, 1300, SkillShotType.Linear, 250, 2100, 100);
+            R = new Spell.Skillshot(SpellSlot.R, 1000, SkillShotType.Linear, 250, 2100, 100);
+            R1 = new Spell.Skillshot(SpellSlot.R, 1400, SkillShotType.Linear, 250, 2100, 120);
 
             menu = MainMenu.AddMenu("Perfect Graves", "PerfectGraves");
 
@@ -48,11 +49,15 @@ namespace PerfectGraves
             ComboMenu.Add("useQCombo", new CheckBox("Use Q"));
             ComboMenu.Add("useWCombo", new CheckBox("Use W"));
             ComboMenu.Add("useECombo", new CheckBox("Use E"));
-            ComboMenu.Add("useRCombo", new CheckBox("Use R"));
+            ComboMenu.Add("useRCombo", new CheckBox("Fast R Combo"));
             ComboMenu.Add("useItems", new CheckBox("Use Items"));
             ComboMenu.AddLabel("BOTRK,Bilgewater Cutlass Settings");
             ComboMenu.Add("botrkHP", new Slider("My HP < %", 60, 0, 100));
             ComboMenu.Add("botrkenemyHP", new Slider("Enemy HP < %", 60, 0, 100));
+
+            KSMenu = menu.AddSubMenu("KS Settings", "KSSettings");
+            KSMenu.Add("useQKS", new CheckBox("Use Q KS"));
+            KSMenu.Add("useRKS", new CheckBox("Use R KS"));
 
             HarassMenu = menu.AddSubMenu("Harass Settings", "Harass");
             HarassMenu.Add("useQHarass", new CheckBox("Use Q"));
@@ -60,7 +65,7 @@ namespace PerfectGraves
 
             FarmMenu = menu.AddSubMenu("Lane/Jungle Clear Settings", "Farm");
             FarmMenu.AddLabel("Lane Clear");
-            FarmMenu.Add("useQ", new CheckBox("Use Q"));
+            FarmMenu.Add("useQ", new CheckBox("Use Q//Does not Work for Now."));
 
             FarmMenu.AddLabel("Jungle Clear");
             FarmMenu.Add("Qjungle", new CheckBox("Use Q"));
@@ -73,10 +78,14 @@ namespace PerfectGraves
             DrawingsMenu.Add("DrawW", new CheckBox("Draw W"));
             DrawingsMenu.Add("DrawE", new CheckBox("Draw E"));
             DrawingsMenu.Add("DrawR", new CheckBox("Draw R"));
+            DrawingsMenu.Add("DrawR1", new CheckBox("Draw Extended R"));
 
             UpdateMenu = menu.AddSubMenu("Updates", "Update");
-            UpdateMenu.AddLabel("0.0.2 Updated");
-            UpdateMenu.AddLabel("-Jungle Clear Added!");
+            UpdateMenu.AddLabel("0.0.3 Updated");
+            UpdateMenu.AddLabel("+Jungle Clear Added!");
+            UpdateMenu.AddLabel("+Kill Steal Added!");
+            UpdateMenu.AddLabel("+Cast Q Improwed!");
+            UpdateMenu.AddLabel("-Lane Clear Closed for Now.");
 
 
 
@@ -86,19 +95,54 @@ namespace PerfectGraves
 
         private static void Game_OnTick(EventArgs args)
         {
+
             Orbwalker.ForcedTarget = null;
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)) Combo();
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear)) LaneClear();
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
+                Combo();
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
+                LaneClear();
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear))
             {
                 JungleClear();
             }
+            KillSteal();
+
+        }
+        public static void KillSteal()
+        {
+            var useR = KSMenu["useRKS"].Cast<CheckBox>().CurrentValue;
+            var useQ = KSMenu["useQKS"].Cast<CheckBox>().CurrentValue;
+            var targetQ = TargetSelector.GetTarget(Q.Range, DamageType.Physical);
+            var targetR = TargetSelector.GetTarget(R.Range, DamageType.Physical);
+            var targetR1 = TargetSelector.GetTarget(R1.Range, DamageType.Physical);
+            if (useR && R.IsReady() && targetR.IsValidTarget(R.Range) && targetR.Health < RDamage(targetR) && R.GetPrediction(targetR).HitChance >= HitChance.Medium)
+            {
+                R.Cast(R.GetPrediction(targetR).CastPosition);
+            }
+            if (useR && R.IsReady() && targetR1.IsValidTarget(R1.Range) && targetR1.Health < R1Damage(targetR1) && R.GetPrediction(targetR1).HitChance >= HitChance.Medium)
+            {
+                R.Cast(R.GetPrediction(targetR1).CastPosition);
+            }
+            if (useQ && Q.IsReady() && targetQ.IsValidTarget(Q.Range) && targetQ.Health < QDamage(targetQ) && Q.GetPrediction(targetQ).HitChance >= HitChance.Medium)
+            {
+                Q.Cast(Q.GetPrediction(targetQ).CastPosition);
+            }
         }
 
+        public static float QDamage(Obj_AI_Base target)
+        {
+            return _Player.CalculateDamageOnUnit(target, DamageType.Physical,
+                (float)(new[] { 60, 80, 100, 120, 140 }[Program.Q.Level] + 0.75 * _Player.FlatPhysicalDamageMod));
+        }
         public static float RDamage(Obj_AI_Base target)
         {
             return _Player.CalculateDamageOnUnit(target, DamageType.Physical,
-                (float)(new[] { 250, 400, 550 }[Program.R.Level] + 1.4 * _Player.FlatPhysicalDamageMod));
+                (float)(new[] { 250, 400, 550 }[Program.R.Level] + 1.5 * _Player.FlatPhysicalDamageMod));
+        }
+        public static float R1Damage(Obj_AI_Base target)
+        {
+            return _Player.CalculateDamageOnUnit(target, DamageType.Physical,
+                (float)(new[] { 200, 320, 440 }[Program.R.Level] + 1.2 * _Player.FlatPhysicalDamageMod));
         }
         internal static void HandleItems()
         {
@@ -139,14 +183,9 @@ namespace PerfectGraves
         }
         public static void Harass()
         {
-            var target = TargetSelector.GetTarget(_Player.GetAutoAttackRange(), DamageType.Physical);
+            var target = TargetSelector.GetTarget(Q.Range, DamageType.Physical);
             var UseItems = HarassMenu["useItems"].Cast<CheckBox>().CurrentValue;
             var useQ = HarassMenu["useQHarass"].Cast<CheckBox>().CurrentValue;
-
-            if (UseItems)
-            {
-                HandleItems();
-            }
             if (useQ && Q.IsReady() && Q.GetPrediction(target).HitChance >= HitChance.Medium)
             {
                 Q.Cast(Q.GetPrediction(target).CastPosition);
@@ -159,25 +198,30 @@ namespace PerfectGraves
             var useW = ComboMenu["useWCombo"].Cast<CheckBox>().CurrentValue;
             var useE = ComboMenu["useECombo"].Cast<CheckBox>().CurrentValue;
             var useR = ComboMenu["useRCombo"].Cast<CheckBox>().CurrentValue;
-            
-
-            foreach (var target in HeroManager.Enemies.Where(o => o.IsValidTarget(1300) && !o.IsDead && !o.IsZombie))
+            var targetE = TargetSelector.GetTarget(E.Range, DamageType.Physical);
+            var targetR = TargetSelector.GetTarget(R.Range, DamageType.Physical);
+            var targetR1 = TargetSelector.GetTarget(R1.Range, DamageType.Physical);
+            var targetQ = TargetSelector.GetTarget(Q.Range, DamageType.Physical);
+            if (!Player.HasBuff("gravesbasicattackammo2"))
             {
-                if (useQ && Q.IsReady() && Q.GetPrediction(target).HitChance >= HitChance.Medium)
-                {
-                    Q.Cast(Q.GetPrediction(target).CastPosition);
-                }
-                if (useW && W.IsReady() && W.GetPrediction(target).HitChance >= HitChance.Medium && target.IsValidTarget(W.Range))
-                {
-                    W.Cast(target);
-                }
-                if (useE && E.IsReady() && target.IsValidTarget(E.Range))
+                if (useE && E.IsReady() && targetE.IsValidTarget(E.Range))
                 {
                     E.Cast(mousePos);
                 }
-                if (useR && R.IsReady() && R.GetPrediction(target).HitChance >= HitChance.Medium && target.Health <= RDamage(target) && target.IsValidTarget(R.Range))
+            }
+            if (useR && R.IsReady() && targetR.IsValidTarget(R.Range) && targetR.Health < RDamage(targetR) && R.GetPrediction(targetR).HitChance >= HitChance.Medium)
+            {
+                R.Cast(R.GetPrediction(targetR).CastPosition);
+            }
+            if (useQ && Q.IsReady() && Q.GetPrediction(targetQ).HitChance >= HitChance.Medium)
+            {
+                Q.Cast(Q.GetPrediction(targetQ).CastPosition);
+            }
+            foreach (var target in HeroManager.Enemies.Where(o => o.IsValidTarget(1300) && !o.IsDead && !o.IsZombie))
+            {
+                if (useW && W.IsReady() && W.GetPrediction(target).HitChance >= HitChance.Medium && target.IsValidTarget(W.Range))
                 {
-                    R.Cast(R.GetPrediction(target).CastPosition);
+                    W.Cast(target);
                 }
                 if (UseItems)
                 {
@@ -187,12 +231,14 @@ namespace PerfectGraves
         }
         public static void LaneClear()
         {
+            /*
             var minions = ObjectManager.Get<Obj_AI_Minion>().Where(m => m.IsValidTarget(Q.Range));
             var useQ = FarmMenu["useQ"].Cast<CheckBox>().CurrentValue;
             if (useQ && Q.IsReady() && Q.IsInRange(minions.FirstOrDefault().Position) && Q.GetPrediction(minions.FirstOrDefault()).HitChance >= HitChance.High)
             {
-                Q.Cast(minions.First().Position);
+                //Q.Cast(minions.First().Position);
             }
+            */
         }
 
         private static void JungleClear()
@@ -201,7 +247,7 @@ namespace PerfectGraves
             var useQMana = FarmMenu["QjungleMana"].Cast<Slider>().CurrentValue;
             var useE = FarmMenu["Ejungle"].Cast<CheckBox>().CurrentValue;
             var useEMana = FarmMenu["EjungleMana"].Cast<Slider>().CurrentValue;
-            foreach (var monster in EntityManager.MinionsAndMonsters.Monsters)
+                foreach (var monster in EntityManager.MinionsAndMonsters.Monsters)
             {
                 if (useQ && Q.IsReady() && Player.Instance.ManaPercent > useQMana)
                 {
@@ -236,6 +282,11 @@ namespace PerfectGraves
             if (DrawingsMenu["DrawR"].Cast<CheckBox>().CurrentValue)
             {
                 Drawing.DrawCircle(_Player.Position, R.Range, System.Drawing.Color.Red);
+            }
+
+            if (DrawingsMenu["DrawR1"].Cast<CheckBox>().CurrentValue)
+            {
+                Drawing.DrawCircle(_Player.Position, R1.Range, System.Drawing.Color.Red);
             }
 
         }
