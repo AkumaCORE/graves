@@ -200,13 +200,13 @@ namespace PerfectGraves
             var useW = ComboMenu["useWCombo"].Cast<CheckBox>().CurrentValue;
             var useE = ComboMenu["useECombo"].Cast<CheckBox>().CurrentValue;
             var useR = ComboMenu["useRCombo"].Cast<CheckBox>().CurrentValue;
-            var targetE = TargetSelector.GetTarget(E.Range, DamageType.Physical);
+            var targetE = TargetSelector.GetTarget(Q.Range, DamageType.Physical);
             var targetR = TargetSelector.GetTarget(R.Range, DamageType.Physical);
             var targetR1 = TargetSelector.GetTarget(R1.Range, DamageType.Physical);
             var targetQ = TargetSelector.GetTarget(Q.Range, DamageType.Physical);
             if (!Player.HasBuff("gravesbasicattackammo2"))
             {
-                if (useE && E.IsReady() && targetE.IsValidTarget(E.Range))
+                if (useE && E.IsReady() && targetE.IsValidTarget(Q.Range))
                 {
                     E.Cast(mousePos);
                 }
