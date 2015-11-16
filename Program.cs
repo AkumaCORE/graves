@@ -41,7 +41,7 @@ namespace PerfectGraves
             W = new Spell.Skillshot(SpellSlot.W, 850, SkillShotType.Circular, 250, 1650, 150);
             E = new Spell.Skillshot(SpellSlot.E, 425, SkillShotType.Linear);
             R = new Spell.Skillshot(SpellSlot.R, 1000, SkillShotType.Linear, 250, 2100, 100);
-            R1 = new Spell.Skillshot(SpellSlot.R, 1400, SkillShotType.Linear, 250, 2100, 120);
+            R1 = new Spell.Skillshot(SpellSlot.R, 1400, SkillShotType.Cone, 250, 2100, 120);
 
             menu = MainMenu.AddMenu("Perfect Graves", "PerfectGraves");
 
@@ -184,7 +184,6 @@ namespace PerfectGraves
         }
         public static void Harass()
         {
-            if (Orbwalker.IsAutoAttacking) return;
             var target = TargetSelector.GetTarget(Q.Range, DamageType.Physical);
             var UseItems = HarassMenu["useItems"].Cast<CheckBox>().CurrentValue;
             var useQ = HarassMenu["useQHarass"].Cast<CheckBox>().CurrentValue;
