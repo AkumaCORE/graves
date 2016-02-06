@@ -18,3 +18,6 @@ C:\Users\Mertss\Desktop\My Addons\Perfect Graves\obj\Debug\PerfectGraves.pdb
 C:\Users\Mertss\Desktop\buddy\My Addons\Perfect Graves\bin\Debug\PerfectGraves.exe.config
 C:\Users\Mertss\Desktop\buddy\My Addons\Perfect Graves\obj\Debug\PerfectGraves.exe
 C:\Users\Mertss\Desktop\buddy\My Addons\Perfect Graves\obj\Debug\PerfectGraves.pdb
+C:\Users\Mertss\Documents\GitHub\Perfect-Graves\bin\Debug\PerfectGraves.exe.config
+C:\Users\Mertss\Documents\GitHub\Perfect-Graves\obj\Debug\PerfectGraves.exe
+C:\Users\Mertss\Documents\GitHub\Perfect-Graves\obj\Debug\PerfectGraves.pdb

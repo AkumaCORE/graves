@@ -122,8 +122,8 @@ namespace PerfectGraves
         {
             if (_Player.HasBuff("GravesBasicAttackAmmo2") || !E.IsReady() ||
                 !ComboMenu["useEreload"].Cast<CheckBox>().CurrentValue ||
-                !(Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear) ||
-                Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)))
+                (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear) ||
+                !Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)))
                 return;
             var direction = (Game.CursorPos - _Player.ServerPosition).To2D().Normalized();
 
@@ -314,9 +314,15 @@ namespace PerfectGraves
                 if (!NavMesh.GetCollisionFlags(predPosT).HasFlag(CollisionFlags.Wall) &&
                     !NavMesh.GetCollisionFlags(predPosT).HasFlag(CollisionFlags.Building) ||
                     _Player.Distance(predPosT) > Q.Range)
+                {
                     continue;
 
-                Q.Cast((Vector3)_Player.ServerPosition.Extend(predPosT, Q.Range));
+                    Q.Cast((Vector3)_Player.ServerPosition.Extend(predPosT, Q.Range));
+                }              
+                else
+                {
+                    CastQkill(target);
+                }
             }
         }
 
@@ -451,14 +457,9 @@ namespace PerfectGraves
             {
                 R.Cast(R.GetPrediction(targetR).CastPosition);
             }
-            if (useQ && Q.IsReady() && Q.GetPrediction(targetQ).HitChance >= HitChance.Medium && tHp < _Player.GetSpellDamage(targetQ, SpellSlot.Q))
-            {
-                CastQkill(targetQ);
-            }
-            else
-            {
+
                 CastCollisionQ(targetQ);
-            }
+            
             foreach (var target in HeroManager.Enemies.Where(o => o.IsValidTarget(1300) && !o.IsDead && !o.IsZombie))
             {
                 if (useW && W.IsReady() && W.GetPrediction(target).HitChance >= HitChance.Medium && target.IsValidTarget(W.Range))
