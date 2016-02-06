@@ -314,15 +314,9 @@ namespace PerfectGraves
                 if (!NavMesh.GetCollisionFlags(predPosT).HasFlag(CollisionFlags.Wall) &&
                     !NavMesh.GetCollisionFlags(predPosT).HasFlag(CollisionFlags.Building) ||
                     _Player.Distance(predPosT) > Q.Range)
-                {
                     continue;
 
-                    Q.Cast((Vector3)_Player.ServerPosition.Extend(predPosT, Q.Range));
-                }              
-                else
-                {
-                    CastQkill(target);
-                }
+                Q.Cast((Vector3)_Player.ServerPosition.Extend(predPosT, Q.Range));
             }
         }
 
@@ -333,6 +327,17 @@ namespace PerfectGraves
 
             if (predPos.HitChance >= HitChance.Medium && Game.Time > Etime + 250 &&
                 target.Health + 20 < _Player.GetSpellDamage(target, SpellSlot.Q))
+            {
+                Q.Cast(predPos.CastPosition);
+            }
+        }
+
+        public static void CastQ(AIHeroClient target)
+        {
+            var predPos = Prediction.Position.PredictLinearMissile(target, Q.Range - 100, Q.Width, Q.CastDelay, Q.Speed,
+                int.MaxValue, null);
+
+            if (predPos.HitChance >= HitChance.Medium && Game.Time > Etime + 250)
             {
                 Q.Cast(predPos.CastPosition);
             }
@@ -356,7 +361,7 @@ namespace PerfectGraves
             }
             if (useQ && Q.IsReady() && targetQ.IsValidTarget(Q.Range) && targetQ.Health < QDamage(targetQ) && Q.GetPrediction(targetQ).HitChance >= HitChance.Medium)
             {
-                Q.Cast(Q.GetPrediction(targetQ).CastPosition);
+                CastQkill(targetQ);
             }
         }
 
@@ -380,12 +385,12 @@ namespace PerfectGraves
         public static float RDamage(Obj_AI_Base target)
         {
             return _Player.CalculateDamageOnUnit(target, DamageType.Physical,
-                (float)(new[] { 250, 400, 550 }[Program.R.Level] + 1.5 * _Player.FlatPhysicalDamageMod));
+                (float)(new[] { 250, 400, 550 }[Program.R.Level] + 1.4 * _Player.FlatPhysicalDamageMod));
         }
         public static float R1Damage(Obj_AI_Base target)
         {
             return _Player.CalculateDamageOnUnit(target, DamageType.Physical,
-                (float)(new[] { 200, 320, 440 }[Program.R.Level] + 1.2 * _Player.FlatPhysicalDamageMod));
+                (float)(new[] { 200, 320, 440 }[Program.R.Level] + 1.1 * _Player.FlatPhysicalDamageMod));
         }
         internal static void HandleItems()
         {
@@ -457,10 +462,10 @@ namespace PerfectGraves
             {
                 R.Cast(R.GetPrediction(targetR).CastPosition);
             }
-
-                CastCollisionQ(targetQ);
+            CastQ(targetQ);
+            CastCollisionQ(targetQ);
             
-            foreach (var target in HeroManager.Enemies.Where(o => o.IsValidTarget(1300) && !o.IsDead && !o.IsZombie))
+            foreach (var target in EntityManager.Heroes.Enemies.Where(o => o.IsValidTarget(1300) && !o.IsDead && !o.IsZombie))
             {
                 if (useW && W.IsReady() && W.GetPrediction(target).HitChance >= HitChance.Medium && target.IsValidTarget(W.Range))
                 {
