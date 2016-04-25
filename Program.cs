@@ -431,15 +431,7 @@ namespace PerfectGraves
         }
         public static void Harass()
         {
-            var targetQ = TargetSelector.GetTarget(Q.Range, DamageType.Physical);
-            var UseItems = HarassMenu["useItems"].Cast<CheckBox>().CurrentValue;
-            var useQ = HarassMenu["useQHarass"].Cast<CheckBox>().CurrentValue;
-            if (Q.IsReady() && R.GetPrediction(targetP).HitChance >= HitChance.Medium)
-            {
-                Q.Cast(Q.GetPrediction(targetT).CastPosition);
-            }
-            CastQ(targetQ);
-            CastCollisionQ(targetQ);
+
         }
         public static void Combo()
         {
