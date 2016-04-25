@@ -429,10 +429,24 @@ namespace PerfectGraves
                 Item.UseItem(3140);
             }
         }
-        public static void Harass()
+        private static void Harass()
         {
-            CastQ;
-            CastCollisionQ;
+            if (!Spells["q"].IsReady() || !harassMenu["Use Q"].Cast<CheckBox>().CurrentValue && !harassMenu["Use Q"].Cast<CheckBox>().CurrentValue)
+                return;
+
+            AIHeroClient target = TargetSelector.GetTarget(Spells["q"].Range, DamageType.Physical);
+
+            if (target != null)
+            {
+                if (harassMenu["Use Q"].Cast<CheckBox>().CurrentValue)
+                {
+                    if (CastCollisionQ(target))
+                        return;
+                }
+
+                if (harassMenu["Use Q"].Cast<CheckBox>().CurrentValue)
+                    CastQ(target);
+            }
         }
         public static void Combo()
         {
