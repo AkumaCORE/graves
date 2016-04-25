@@ -429,6 +429,16 @@ namespace PerfectGraves
                 Item.UseItem(3140);
             }
         }
+        public static void Harass()
+        {
+            var target = TargetSelector.GetTarget(Q.Range, DamageType.Physical);
+            var UseItems = HarassMenu["useItems"].Cast<CheckBox>().CurrentValue;
+            var useQ = HarassMenu["useQHarass"].Cast<CheckBox>().CurrentValue;
+            if (useQ && Q.IsReady() && Q.GetPrediction(target).HitChance >= HitChance.Medium)
+            {
+                Q.Cast(Q.GetPrediction(target).CastPosition);
+            }
+        }
         public static void Combo()
         {
             var UseItems = ComboMenu["useItems"].Cast<CheckBox>().CurrentValue;
@@ -466,36 +476,6 @@ namespace PerfectGraves
                     HandleItems();
                 }
             }
-        }
-        public static void LaneClear()
-        {
-
-        }
-
-        private static void JungleClear()
-        {
-            if (Orbwalker.IsAutoAttacking) return;
-            var useQ = FarmMenu["Qjungle"].Cast<CheckBox>().CurrentValue;
-            var useQMana = FarmMenu["QjungleMana"].Cast<Slider>().CurrentValue;
-            var useE = FarmMenu["Ejungle"].Cast<CheckBox>().CurrentValue;
-            var useEMana = FarmMenu["EjungleMana"].Cast<Slider>().CurrentValue;
-            foreach (var monster in EntityManager.MinionsAndMonsters.Monsters)
-            {
-                if (useQ && Q.IsReady() && Player.Instance.ManaPercent > useQMana)
-                {
-                    Q.Cast(monster);
-                }
-                if (useE && E.IsReady() && Player.Instance.HealthPercent > useEMana)
-                {
-                    E.Cast(mousePos);
-                }
-
-                HandleItems();
-            }
-        }
-        public static void Harass()
-        {
-
         }
         public static void LaneClear()
         {
