@@ -431,22 +431,9 @@ namespace PerfectGraves
         }
         private static void Harass()
         {
-            if (!Spells["q"].IsReady() || !harassMenu["Use Q"].Cast<CheckBox>().CurrentValue && !harassMenu["Use Q"].Cast<CheckBox>().CurrentValue)
-                return;
-
-            AIHeroClient target = TargetSelector.GetTarget(Spells["q"].Range, DamageType.Physical);
-
-            if (target != null)
-            {
-                if (harassMenu["Use Q"].Cast<CheckBox>().CurrentValue)
-                {
-                    if (CastCollisionQ(target))
-                        return;
-                }
-
-                if (harassMenu["Use Q"].Cast<CheckBox>().CurrentValue)
+                if (useQ && Q.IsReady() && Q.GetPrediction(target).HitChance >= HitChance.Medium && target.IsValidTarget(Q.Range))
                     CastQ(target);
-            }
+            
         }
         public static void Combo()
         {
