@@ -430,16 +430,44 @@ namespace PerfectGraves
             }
         }
 
-        Public static void Harass()
+        public static void Harass()
         {
-            if (Orbwalker.IsAutoAttacking) return;
+            var UseItems = ComboMenu["useItems"].Cast<CheckBox>().CurrentValue;
+            var useQ = ComboMenu["useQCombo"].Cast<CheckBox>().CurrentValue;
+            var useW = ComboMenu["useWCombo"].Cast<CheckBox>().CurrentValue;
+            var useE = ComboMenu["useECombo"].Cast<CheckBox>().CurrentValue;
+            var useR = ComboMenu["useRCombo"].Cast<CheckBox>().CurrentValue;
+            var targetE = TargetSelector.GetTarget(Q.Range, DamageType.Physical);
+            var targetR = TargetSelector.GetTarget(R.Range, DamageType.Physical);
+            var targetR1 = TargetSelector.GetTarget(R1.Range, DamageType.Physical);
             var targetQ = TargetSelector.GetTarget(Q.Range, DamageType.Physical);
-            if (Q.IsReady() && Q.GetPrediction(target).HitChance >= HitChance.Medium && target.IsValidTarget(Q.Range))
-                 {  
-                   CastQ(target);
-                 }
+            var tHp = targetQ.Health + 20;
+            if (!Player.HasBuff("gravesbasicattackammo2") && !Orbwalker.IsAutoAttacking)
+            {
+                if (useE && E.IsReady() && targetE.IsValidTarget(Q.Range))
+                {
+                    E.Cast(mousePos);
+                }
+            }
+            if (useR && R.IsReady() && targetR.IsValidTarget(R.Range) && targetR.Health < RDamage(targetR) && R.GetPrediction(targetR).HitChance >= HitChance.Medium)
+            {
+                R.Cast(R.GetPrediction(targetR).CastPosition);
+            }
+            CastQ(targetQ);
+            CastCollisionQ(targetQ);
+            
+            foreach (var target in EntityManager.Heroes.Enemies.Where(o => o.IsValidTarget(1300) && !o.IsDead && !o.IsZombie))
+            {
+                if (useW && W.IsReady() && W.GetPrediction(target).HitChance >= HitChance.Medium && target.IsValidTarget(W.Range))
+                {
+                    W.Cast(target);
+                }
+                if (UseItems)
+                {
+                    HandleItems();
+                }
+            }
         }
-
         public static void Combo()
         {
             var UseItems = ComboMenu["useItems"].Cast<CheckBox>().CurrentValue;
