@@ -434,7 +434,7 @@ namespace PerfectGraves
             var target = TargetSelector.GetTarget(Q.Range, DamageType.Physical);
             var UseItems = HarassMenu["useItems"].Cast<CheckBox>().CurrentValue;
             var useQ = HarassMenu["useQHarass"].Cast<CheckBox>().CurrentValue;
-            if (useQ && Q.IsReady() && Q.GetPrediction(target).HitChance >= HitChance.Medium)
+            if (Q.IsReady() && Q.GetPrediction(target).HitChance >= HitChance.Medium)
             {
                 Q.Cast(Q.GetPrediction(target).CastPosition);
             }
