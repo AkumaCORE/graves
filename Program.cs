@@ -431,8 +431,8 @@ namespace PerfectGraves
         }
         public static void Harass()
         {
-            CastQ(targetQ);
-            CastCollisionQ(targetQ);
+            CastQ();
+            CastCollisionQ();
         }
         public static void Combo()
         {
