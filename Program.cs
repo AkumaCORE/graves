@@ -431,7 +431,7 @@ namespace PerfectGraves
         }
         public static void Harass()
         {
-
+            Q.Cast(target);
         }
         public static void Combo()
         {
