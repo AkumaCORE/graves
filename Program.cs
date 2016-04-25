@@ -430,7 +430,7 @@ namespace PerfectGraves
             }
         }
 
-        private static void Harass()
+        Public static void Harass()
         {
             if (Orbwalker.IsAutoAttacking) return;
             var targetQ = TargetSelector.GetTarget(Q.Range, DamageType.Physical);
