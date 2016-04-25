@@ -436,7 +436,8 @@ namespace PerfectGraves
             var useQ = HarassMenu["useQHarass"].Cast<CheckBox>().CurrentValue;
             if (useQ && Q.IsReady() && Q.GetPrediction(target).HitChance >= HitChance.Medium)
             {
-                Q.Cast(target);
+                  CastQ(targetQ);
+                  CastCollisionQ(targetQ);;
             }
         }
         public static void Combo()
