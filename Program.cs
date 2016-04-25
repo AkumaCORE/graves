@@ -429,12 +429,17 @@ namespace PerfectGraves
                 Item.UseItem(3140);
             }
         }
+
         private static void Harass()
         {
-                if (useQ && Q.IsReady() && Q.GetPrediction(target).HitChance >= HitChance.Medium && target.IsValidTarget(Q.Range))
-                    CastQ(target);
-            
+            if (Orbwalker.IsAutoAttacking) return;
+            var targetQ = TargetSelector.GetTarget(Q.Range, DamageType.Physical);
+            if (Q.IsReady() && Q.GetPrediction(target).HitChance >= HitChance.Medium && target.IsValidTarget(Q.Range))
+                 {  
+                   CastQ(target);
+                 }
         }
+
         public static void Combo()
         {
             var UseItems = ComboMenu["useItems"].Cast<CheckBox>().CurrentValue;
